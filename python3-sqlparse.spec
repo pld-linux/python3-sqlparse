@@ -6,13 +6,13 @@
 Summary:	Non-validating SQL parser
 Summary(pl.UTF-8):	Parser SQL bez kontroli poprawności
 Name:		python3-sqlparse
-Version:	0.4.1
-Release:	4
+Version:	0.4.2
+Release:	1
 License:	BSD
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/sqlparse/
 Source0:	https://files.pythonhosted.org/packages/source/s/sqlparse/sqlparse-%{version}.tar.gz
-# Source0-md5:	eebbc6b5f1033054873033e54b0c1266
+# Source0-md5:	66dce30d92823589f5e5e043f90b4f16
 URL:		https://pypi.org/project/sqlparse/
 BuildRequires:	python3-modules >= 1:3.5
 BuildRequires:	python3-setuptools
