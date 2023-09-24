@@ -6,16 +6,18 @@
 Summary:	Non-validating SQL parser
 Summary(pl.UTF-8):	Parser SQL bez kontroli poprawności
 Name:		python3-sqlparse
-Version:	0.4.2
+Version:	0.4.4
 Release:	1
 License:	BSD
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/sqlparse/
 Source0:	https://files.pythonhosted.org/packages/source/s/sqlparse/sqlparse-%{version}.tar.gz
-# Source0-md5:	66dce30d92823589f5e5e043f90b4f16
+# Source0-md5:	67798c7a0dae90f263d20e9ecf62c8cd
 URL:		https://pypi.org/project/sqlparse/
 BuildRequires:	python3-modules >= 1:3.5
-BuildRequires:	python3-setuptools
+BuildRequires:	python3-setuptools >= 1:61
+# TODO
+#BuildRequires:	python3-flit_core >= 3.2
 %if %{with tests}
 BuildRequires:	python3-pytest
 %endif
@@ -49,6 +51,16 @@ Dokumentacja API modułu Pythona sqlparse.
 
 %prep
 %setup -q -n sqlparse-%{version}
+
+# add stub and set version to use setuptools instead of flit
+cat >setup.py <<EOF
+from setuptools import setup
+setup()
+EOF
+cat >>pyproject.toml <<EOF
+[tool.setuptools.dynamic]
+version = {attr = "sqlparse.__version__"}
+EOF
 
 %build
 %py3_build
