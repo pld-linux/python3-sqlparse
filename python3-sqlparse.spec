@@ -6,27 +6,28 @@
 Summary:	Non-validating SQL parser
 Summary(pl.UTF-8):	Parser SQL bez kontroli poprawności
 Name:		python3-sqlparse
-Version:	0.4.4
-Release:	3
+Version:	0.5.3
+Release:	1
 License:	BSD
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/sqlparse/
 Source0:	https://files.pythonhosted.org/packages/source/s/sqlparse/sqlparse-%{version}.tar.gz
-# Source0-md5:	67798c7a0dae90f263d20e9ecf62c8cd
+# Source0-md5:	9764a42264c9a3102526c87260e73d11
 URL:		https://pypi.org/project/sqlparse/
-BuildRequires:	python3-modules >= 1:3.5
-BuildRequires:	python3-setuptools >= 1:61
-# TODO
-#BuildRequires:	python3-flit_core >= 3.2
+BuildRequires:	python3-build
+BuildRequires:	python3-hatchling
+BuildRequires:	python3-installer
+BuildRequires:	python3-modules >= 1:3.8
 %if %{with tests}
 BuildRequires:	python3-pytest
 %endif
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.714
+BuildRequires:	rpmbuild(macros) >= 2.044
+BuildRequires:	sed >= 4.0
 %if %{with doc}
-BuildRequires:	sphinx-pdg
+BuildRequires:	sphinx-pdg-3
 %endif
-Requires:	python3-modules >= 1:3.5
+Requires:	python3-modules >= 1:3.8
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -52,32 +53,26 @@ Dokumentacja API modułu Pythona sqlparse.
 %prep
 %setup -q -n sqlparse-%{version}
 
-# add stub and set version to use setuptools instead of flit
-cat >setup.py <<EOF
-from setuptools import setup
-setup()
-EOF
-cat >>pyproject.toml <<EOF
-[tool.setuptools.dynamic]
-version = {attr = "sqlparse.__version__"}
-EOF
+%{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},' sqlparse/cli.py
 
 %build
-%py3_build
+%py3_build_pyproject
 
 %if %{with tests}
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+PYTHONPATH=$(pwd) \
 %{__python3} -m pytest tests
 %endif
 
 %if %{with doc}
-%{__make} -C docs html
+%{__make} -C docs html \
+	SPHINXBUILD=sphinx-build-3
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%py3_install
+%py3_install_pyproject
 
 %{__mv} $RPM_BUILD_ROOT%{_bindir}/{sqlformat,sqlformat-3}
 ln -s sqlformat-3 $RPM_BUILD_ROOT%{_bindir}/sqlformat
@@ -89,11 +84,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS CHANGELOG LICENSE README.rst TODO
+%doc AUTHORS CHANGELOG LICENSE README.rst SECURITY.md TODO
 %attr(755,root,root) %{_bindir}/sqlformat
 %attr(755,root,root) %{_bindir}/sqlformat-3
 %{py3_sitescriptdir}/sqlparse
-%{py3_sitescriptdir}/sqlparse-%{version}-py*.egg-info
+%{py3_sitescriptdir}/sqlparse-%{version}.dist-info
 %{_mandir}/man1/sqlformat.1*
 %{_mandir}/man1/sqlformat-3.1*
 
